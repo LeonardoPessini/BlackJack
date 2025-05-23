@@ -1,65 +1,19 @@
-﻿using BlackJack.Domain.Cartas;
-using System.Collections.Immutable;
+﻿namespace BlackJack.Domain.Apostadores;
 
-namespace BlackJack.Domain.Apostadores;
-
-internal class Jogador
+internal class Jogador : Apostador
 {
-    private readonly List<Carta> _cartas;
+    public Usuario Usuario { get; }
 
-    internal ImmutableList<Carta> Mao { get => _cartas.ToImmutableList(); }
-
-
-    internal int SomaDosValoresDasCartas
+    internal Jogador(Usuario usuario)
     {
-        get
-        {
-            int somasemAses = 0;
-
-            foreach (var carta in _cartas)
-            {
-                if (carta.Valor != ValorCarta.As)
-                    somasemAses += carta.ValorParaBlackJack();
-            }
-
-            var somaComAses = AdicionarValorDosAsesASomaSeHouver(somasemAses);
-            return somaComAses;
-        }
+        Usuario = usuario;
     }
 
-
-    private int AdicionarValorDosAsesASomaSeHouver(int somaSemAses)
+    internal void Apostar(decimal valor)
     {
-        var ases = _cartas.Where(c => c.Valor == ValorCarta.As);
+        if (valor < 1)
+            throw new InvalidOperationException("Valor minimo para aposta: 1");
 
-        if (!ases.Any())
-            return somaSemAses;
-
-        const int asValendo1 = 1;
-        var somaFinal = somaSemAses + ases.Count() * asValendo1;
-
-        if (somaFinal > 21)
-            return somaFinal;
-
-        static int SomaComUmAsAlteradoDe1Para11(int valor)
-            => valor - 1 + 11;
-
-        if (SomaComUmAsAlteradoDe1Para11(somaFinal) > 21)
-            return somaFinal;
-
-        somaFinal = SomaComUmAsAlteradoDe1Para11(somaFinal);
-        return somaFinal;
-    }
-
-
-
-    internal Jogador()
-    {
-        _cartas = [];
-    }
-
-    internal void ReceberCarta(Carta carta)
-    {
-        _cartas.Add(carta);
+        Usuario.RetirarSaldo(valor);
     }
 }

@@ -2,7 +2,7 @@
 
 namespace BlackJack.Domain.Apostadores;
 
-internal class Mesa : Jogador
+internal class Mesa : Apostador
 {
     internal void ComprarDoBaralhoAteAtingirOValorLimite(IBaralho baralho)
     {

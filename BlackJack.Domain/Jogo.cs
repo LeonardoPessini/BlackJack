@@ -7,7 +7,7 @@ namespace BlackJack.Domain;
 public class Jogo 
 {
     public Guid Id { get; }
-    public decimal JogadorSaldo { get => Apostador.Usuario.Saldo; }
+    public decimal JogadorSaldo { get => Jogador.Usuario.Saldo; }
     public decimal Aposta { get; private set; }
     public bool JogadorJaComprouCarta { get; private set; }
     public bool PartidaFinalizada { get; private set; }
@@ -15,9 +15,9 @@ public class Jogo
     public int JogadorId { get; }
 
     public ImmutableList<Carta> CartasComDealer { get => Mesa.Mao; }
-    public ImmutableList<Carta> CartasComApostador { get => Apostador.Mao; }
+    public ImmutableList<Carta> CartasComApostador { get => Jogador.Mao; }
 
-    internal readonly Apostador Apostador;
+    internal readonly Jogador Jogador;
     internal readonly Mesa Mesa;
     private readonly IBaralho _baralho;
     private bool _movimentacaoBancariaJaFoiRealizada;
@@ -26,11 +26,11 @@ public class Jogo
     {
         new UsuarioUseCase().Add(new Usuario(1, 200)); // TEMPORARIO | ATE IMPLEMENTAR O SISTEMA DE ARMAZENAMENTO DE USUARIO
 
-        Apostador = ObterApostadorPorId(jogadorId);
+        Jogador = ObterApostadorPorId(jogadorId);
         AplicarDinheiroDoApostadorNaAposta(aposta);
 
         Id = Guid.NewGuid();
-        JogadorId = Apostador.Usuario.Id;
+        JogadorId = Jogador.Usuario.Id;
 
         JogadorJaComprouCarta = false;
         JogadorParou = false;
@@ -41,18 +41,18 @@ public class Jogo
         _movimentacaoBancariaJaFoiRealizada = false;
 
         Mesa.ReceberCarta(_baralho.Comprar());
-        Apostador.ReceberCarta(_baralho.Comprar());
-        Apostador.ReceberCarta(_baralho.Comprar());
+        Jogador.ReceberCarta(_baralho.Comprar());
+        Jogador.ReceberCarta(_baralho.Comprar());
     }
 
 
     internal Jogo(int jogadorId, decimal aposta, IBaralho baralho)
     {
-        Apostador = ObterApostadorPorId(jogadorId);
+        Jogador = ObterApostadorPorId(jogadorId);
         AplicarDinheiroDoApostadorNaAposta(aposta);
 
         Id = Guid.NewGuid();
-        JogadorId = Apostador.Usuario.Id;
+        JogadorId = Jogador.Usuario.Id;
 
         JogadorJaComprouCarta = false;
         JogadorParou = false;
@@ -63,20 +63,20 @@ public class Jogo
         _movimentacaoBancariaJaFoiRealizada = false;
 
         Mesa.ReceberCarta(_baralho.Comprar());
-        Apostador.ReceberCarta(_baralho.Comprar());
-        Apostador.ReceberCarta(_baralho.Comprar());
+        Jogador.ReceberCarta(_baralho.Comprar());
+        Jogador.ReceberCarta(_baralho.Comprar());
     }
 
     private void AplicarDinheiroDoApostadorNaAposta(decimal aposta)
     {
         Aposta = aposta;
-        Apostador.Usuario.RetirarSaldo(aposta);
+        Jogador.Usuario.RetirarSaldo(aposta);
     }
 
 
-    private Apostador ObterApostadorPorId(int id)
+    private Jogador ObterApostadorPorId(int id)
     {
-        return new Apostador(new UsuarioUseCase().Get(id) 
+        return new Jogador(new UsuarioUseCase().Get(id) 
             ?? throw new ArgumentException("Usuario nao existe na base"));
     }
 
@@ -89,10 +89,10 @@ public class Jogo
         if (JogadorParou)
             throw new InvalidOperationException("O jogador ja parou, então essa operação não é possível");
 
-        Apostador.ReceberCarta(_baralho.Comprar());
+        Jogador.ReceberCarta(_baralho.Comprar());
         JogadorJaComprouCarta = true;
 
-        if (Apostador.SomaDosValoresDasCartas >= 21)
+        if (Jogador.SomaDosValoresDasCartas >= 21)
             FinalizarPartida();
     }
 
@@ -111,7 +111,7 @@ public class Jogo
         if (PartidaFinalizada || JogadorParou)
             throw new InvalidOperationException("O jogador ja parou, então essa operação não é possível");
 
-        Apostador.ReceberCarta(_baralho.Comprar());
+        Jogador.ReceberCarta(_baralho.Comprar());
         Aposta *= 2;
         JogadorParou = true;
     }
@@ -130,7 +130,7 @@ public class Jogo
         if (!PartidaFinalizada)
             throw new InvalidOperationException("A partida ainda nao acabou, então não é possível obter um vencedor");
 
-        var somaDasCartasDoJogador = Apostador.SomaDosValoresDasCartas;
+        var somaDasCartasDoJogador = Jogador.SomaDosValoresDasCartas;
 
         var jogadorEstourou = somaDasCartasDoJogador > 21;
         if (jogadorEstourou)
@@ -143,14 +143,14 @@ public class Jogo
 
         var mesaEstourou = somaDasCartasDaMesa > 21;
         if (mesaEstourou)
-            return new Resultado(Vencedor.Apostador, MotivoDaVitoria.OponenteEstorou);
+            return new Resultado(Vencedor.Jogador, MotivoDaVitoria.OponenteEstorou);
         
 
         var mesaTemBlackJack = somaDasCartasDaMesa == 21;
         var jogadorTemBlackJack = somaDasCartasDoJogador == 21;
 
         bool MesaComBlackJackNatural = mesaTemBlackJack && Mesa.Mao.Count == 2;
-        bool jogadorComBlackJackNatural = jogadorTemBlackJack && Apostador.Mao.Count == 2;
+        bool jogadorComBlackJackNatural = jogadorTemBlackJack && Jogador.Mao.Count == 2;
 
         if(MesaComBlackJackNatural && jogadorComBlackJackNatural)
             return new Resultado(Vencedor.Empate, MotivoDaVitoria.Empate);
@@ -159,7 +159,7 @@ public class Jogo
             return new Resultado(Vencedor.Mesa, MotivoDaVitoria.BlackJackNatural);
 
         if (jogadorComBlackJackNatural)
-            return new Resultado(Vencedor.Apostador, MotivoDaVitoria.BlackJackNatural);
+            return new Resultado(Vencedor.Jogador, MotivoDaVitoria.BlackJackNatural);
 
         if(mesaTemBlackJack && jogadorTemBlackJack)
             return new Resultado(Vencedor.Empate, MotivoDaVitoria.Empate);
@@ -168,14 +168,14 @@ public class Jogo
             return new Resultado(Vencedor.Mesa, MotivoDaVitoria.BlackJack);
 
         if (jogadorTemBlackJack)
-            return new Resultado(Vencedor.Apostador, MotivoDaVitoria.BlackJack);
+            return new Resultado(Vencedor.Jogador, MotivoDaVitoria.BlackJack);
 
         if(somaDasCartasDaMesa == somaDasCartasDoJogador)
             return new Resultado(Vencedor.Empate, MotivoDaVitoria.Empate);
 
         return somaDasCartasDaMesa > somaDasCartasDoJogador ?
             new Resultado(Vencedor.Mesa, MotivoDaVitoria.Normal) :
-            new Resultado(Vencedor.Apostador, MotivoDaVitoria.Normal);
+            new Resultado(Vencedor.Jogador, MotivoDaVitoria.Normal);
     }
 
     public void RealizarMovimentacaoBancariaParaOVencedor()
@@ -188,18 +188,18 @@ public class Jogo
 
         var resultado = ObterResultado();
 
-        if (resultado.Vencedor == Vencedor.Apostador)
+        if (resultado.Vencedor == Vencedor.Jogador)
         {
             if (resultado.MovitoDaVitoria == MotivoDaVitoria.BlackJackNatural)
-                Apostador.Usuario.AdicionarSaldo(Aposta + (Aposta * 1.5m));
+                Jogador.Usuario.AdicionarSaldo(Aposta + (Aposta * 1.5m));
             
             else
-                Apostador.Usuario.AdicionarSaldo(Aposta + Aposta);
+                Jogador.Usuario.AdicionarSaldo(Aposta + Aposta);
 
         }
         else if (resultado.Vencedor == Vencedor.Empate)
         {
-            Apostador.Usuario.AdicionarSaldo(Aposta);
+            Jogador.Usuario.AdicionarSaldo(Aposta);
         }
 
         _movimentacaoBancariaJaFoiRealizada = true;

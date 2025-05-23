@@ -30,7 +30,7 @@ internal class BlackJackGame
 
         janela.Renderizar();
 
-        if (resultado.Vencedor == Vencedor.Apostador)
+        if (resultado.Vencedor == Vencedor.Jogador)
             janela.RedenrizarVitoria();
 
         else if( resultado.Vencedor == Vencedor.Mesa)

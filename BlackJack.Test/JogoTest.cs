@@ -160,7 +160,7 @@ public class JogoTest : IDisposable
         jogo.Hit();
 
         Assert.True(jogo.PartidaFinalizada);
-        Assert.Equal(Vencedor.Apostador, jogo.ObterResultado().Vencedor);
+        Assert.Equal(Vencedor.Jogador, jogo.ObterResultado().Vencedor);
 
     }
 
@@ -181,7 +181,7 @@ public class JogoTest : IDisposable
         if (vencedor == Vencedor.Empate)
             Assert.Equal(saldoAntesDaAposta, saldoAposAposta);
 
-        else if (vencedor == Vencedor.Apostador)
+        else if (vencedor == Vencedor.Jogador)
         {
             if (motivoVitoria == MotivoDaVitoria.BlackJackNatural)
                 Assert.Equal(saldoAntesDaAposta + (jogo.Aposta * 1.5m), saldoAposAposta);

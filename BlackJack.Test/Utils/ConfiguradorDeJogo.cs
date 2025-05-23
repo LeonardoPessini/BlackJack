@@ -11,15 +11,15 @@ internal class ConfiguradorDeJogo : IEnumerable<object[]>
     public IEnumerator<object[]> GetEnumerator()
     {
         yield return new object[] { new Func<Jogo>(BalckJackNaturalParaMesa), Vencedor.Mesa, MotivoDaVitoria.BlackJackNatural };
-        yield return new object[] { new Func<Jogo>(BalckJackNaturalParaJogador), Vencedor.Apostador, MotivoDaVitoria.BlackJackNatural };
+        yield return new object[] { new Func<Jogo>(BalckJackNaturalParaJogador), Vencedor.Jogador, MotivoDaVitoria.BlackJackNatural };
         yield return new object[] { new Func<Jogo>(BlcakJackNaturalParaAmbos), Vencedor.Empate, MotivoDaVitoria.Empate };
         yield return new object[] { new Func<Jogo>(BlcakJackNaturalParaMesaENormalParaJogador), Vencedor.Mesa, MotivoDaVitoria.BlackJackNatural };
-        yield return new object[] { new Func<Jogo>(BlcakJackNaturalParaJogadorENormalParaMesa), Vencedor.Apostador, MotivoDaVitoria.BlackJackNatural };
+        yield return new object[] { new Func<Jogo>(BlcakJackNaturalParaJogadorENormalParaMesa), Vencedor.Jogador, MotivoDaVitoria.BlackJackNatural };
         yield return new object[] { new Func<Jogo>(BlcakJackNormalParaAmbos), Vencedor.Empate, MotivoDaVitoria.Empate };
         yield return new object[] { new Func<Jogo>(BalckJackNaturalParaMesa), Vencedor.Mesa, MotivoDaVitoria.BlackJackNatural };
-        yield return new object[] { new Func<Jogo>(VitoriaNormalJogador), Vencedor.Apostador, MotivoDaVitoria.Normal };
+        yield return new object[] { new Func<Jogo>(VitoriaNormalJogador), Vencedor.Jogador, MotivoDaVitoria.Normal };
         yield return new object[] { new Func<Jogo>(VitoriaNormalMesa), Vencedor.Mesa, MotivoDaVitoria.Normal };
-        yield return new object[] { new Func<Jogo>(MesaEstourando), Vencedor.Apostador, MotivoDaVitoria.OponenteEstorou };
+        yield return new object[] { new Func<Jogo>(MesaEstourando), Vencedor.Jogador, MotivoDaVitoria.OponenteEstorou };
         yield return new object[] { new Func<Jogo>(JogadorEstourando), Vencedor.Mesa, MotivoDaVitoria.OponenteEstorou };
     }
 

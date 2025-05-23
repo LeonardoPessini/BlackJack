@@ -1,55 +1,30 @@
-﻿using BlackJack.Domain;
-using BlackJack.Domain.Apostadores;
-using BlackJack.Domain.Cartas;
+﻿using BlackJack.Domain.Apostadores;
 
 namespace BlackJack.Test;
 
 public class JogadorTest
-
 {
-    private Jogador _jogador;
+    Jogador _jogador;
     public JogadorTest()
     {
-        _jogador = new Jogador();
-    }
-
-
-    [Fact]
-    public void DeveCriarMaoSemCartas()
-    {
-        Assert.Empty(_jogador.Mao);
+        _jogador = new Jogador(new Usuario(1, 100));
     }
 
     [Fact]
-    public void DeveInserirCartaNaMao()
+    public void NaoDeveRealizarApostaComSaldoInsuficiente()
     {
-        var carta = new Carta(ValorCarta.Dama, Naipe.Copa);
-
-        _jogador.ReceberCarta(carta);
-
-        Assert.Equal(carta, _jogador.Mao.First());
+        var message = Assert.Throws<InvalidOperationException>(() => _jogador.Apostar(101)).Message;
+        Assert.Equal("Saldo insulficiente", message);
     }
 
 
     [Theory]
-    [InlineData(ValorCarta.Valete, ValorCarta.Dama, null, 20)]
-    [InlineData(ValorCarta.As, ValorCarta.As, null, 12)]
-    [InlineData(ValorCarta.Oito, ValorCarta.Quatro, ValorCarta.Dois, 14)]
-    [InlineData(ValorCarta.As, ValorCarta.Dama, null, 21)]
-    [InlineData(ValorCarta.Rei, ValorCarta.As, ValorCarta.As, 12)]
-    [InlineData(ValorCarta.Cinco, ValorCarta.As, null, 16)]
-    [InlineData(ValorCarta.Quatro, ValorCarta.As, ValorCarta.As, 16)]
-    [InlineData(ValorCarta.Valete, ValorCarta.Dama, ValorCarta.Rei, 30)]
-    [InlineData(ValorCarta.As, ValorCarta.As, ValorCarta.As, 13)]
-    [InlineData(ValorCarta.Dez, ValorCarta.Dez, ValorCarta.As, 21)]
-    internal void DeveSomarMaoCorretamente(ValorCarta valor1, ValorCarta valor2, ValorCarta? valor3, int resultadoEsperado)
+    [InlineData(0)]
+    [InlineData(-1)]
+    [InlineData(0.9)]
+    public void NaoDeveRealizarApostaMenorQue1(decimal valorInvalido)
     {
-        _jogador.ReceberCarta(new Carta(valor1, Naipe.Copa));
-        _jogador.ReceberCarta(new Carta(valor2, Naipe.Paus));
-
-        if(valor3 != null)
-            _jogador.ReceberCarta(new Carta(valor3.Value, Naipe.Copa));
-
-        Assert.Equal(resultadoEsperado, _jogador.SomaDosValoresDasCartas);
+        var message = Assert.Throws<InvalidOperationException>(() => _jogador.Apostar(valorInvalido)).Message;
+        Assert.Equal("Valor minimo para aposta: 1", message);
     }
 }

@@ -3,6 +3,6 @@
 public enum Vencedor
 {
     Mesa,
-    Apostador,
+    Jogador,
     Empate
 }
